@@ -1,15 +1,18 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Country as CountryClass } from './schemas/country.schema';
 import type { Country } from './schemas/country.schema';
 import type { CountryProvider } from './interfaces/country-provider.interface';
+import { TravelPlan as TravelPlanClass } from '../travel-plans/schemas/travel-plan.schema';
+import type { TravelPlan } from '../travel-plans/schemas/travel-plan.schema';
 
 @Injectable()
 export class CountriesService {
   constructor(
     @InjectModel(CountryClass.name) private countryModel: Model<Country>,
     @Inject('CountryProvider') private provider: CountryProvider,
+    @InjectModel(TravelPlanClass.name) private travelModel?: Model<TravelPlan>,
   ) {}
 
   async findAll(): Promise<any[]> {
@@ -62,5 +65,26 @@ export class CountriesService {
     });
 
     return { country: created.toObject(), source: 'external' };
+  }
+  async deleteByCode(code: string): Promise<{ deleted: boolean }> {
+    const codeUpper = code.toUpperCase();
+    const found = await this.countryModel.findOne({ code: codeUpper }).lean();
+    if (!found) throw new NotFoundException(`Country ${code} not found on cache`);    
+    //Revisar si hay planes de viaje asociados antes de eliminar
+    try {
+      if (this.travelModel) {
+        const plansCount = await this.travelModel.countDocuments({ countryCode: codeUpper });
+        if (plansCount > 0) {
+          throw new BadRequestException(
+            `Cannot delete country ${codeUpper}: ${plansCount} travel plan(s) reference it`,
+          );
+        }
+      }
+    } catch (err) {
+      if (err instanceof BadRequestException) throw err;
+    }
+
+    const result = await this.countryModel.deleteOne({ code: codeUpper });
+    return { deleted: result.deletedCount > 0 };
   }
 }

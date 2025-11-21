@@ -1,5 +1,6 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Delete, Get, Param, UseGuards } from '@nestjs/common';
 import { CountriesService } from './countries.service';
+import { DeleteAuthGuard } from './guards/delete-auth.guard';
 
 @Controller('countries')
 export class CountriesController {
@@ -8,7 +9,6 @@ export class CountriesController {
   @Get()
   async findAll() {
     const countries = await this.countriesService.findAll();
-    // Limit exposed fields to model-defined ones
     return countries.map((c) => ({
       code: c.code,
       name: c.name,
@@ -39,5 +39,11 @@ export class CountriesController {
         updatedAt: country.updatedAt,
       },
     };
+  }
+
+  @Delete(':code')
+  @UseGuards(DeleteAuthGuard)
+  async deleteByCode(@Param('code') code: string) {
+    return this.countriesService.deleteByCode(code);
   }
 }
