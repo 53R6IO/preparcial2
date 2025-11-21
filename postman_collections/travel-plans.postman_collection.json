@@ -1,0 +1,93 @@
+{
+  "info": {
+    "_postman_id": "b7f8c6d2-0000-4000-8000-123456789abc",
+    "name": "Travel Plans - Preparcial2",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000"
+    }
+  ],
+  "item": [
+    {
+      "name": "Create travel plan (valid)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Vacaciones Navidad\",\n  \"countryCode\": \"COL\",\n  \"startDate\": \"2025-12-15\",\n  \"endDate\": \"2025-12-25\",\n  \"notes\": \"Visitar la familia\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/travel-plans",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "travel-plans"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create travel plan (invalid dates)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Fechas Mal\",\n  \"countryCode\": \"COL\",\n  \"startDate\": \"2025-12-30\",\n  \"endDate\": \"2025-12-10\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/travel-plans",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "travel-plans"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create travel plan (non-existent country)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"País Inexistente\",\n  \"countryCode\": \"XXX\",\n  \"startDate\": \"2025-12-01\",\n  \"endDate\": \"2025-12-10\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/travel-plans",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "travel-plans"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
